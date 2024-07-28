@@ -1,6 +1,6 @@
 # box
 
-`box` is a opinionated & minimalistic application framework for Go.
+`box` is an opinionated & minimalistic application framework for Go.
 
 ## Usage
 
