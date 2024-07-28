@@ -16,7 +16,7 @@ type Box struct {
 }
 
 type WebServer struct {
-	Echo           *echo.Echo
+	*echo.Echo
 	LivenessProbe  func(c echo.Context) error
 	ReadinessProbe func(c echo.Context) error
 }
@@ -25,7 +25,7 @@ type Config struct {
 	ListenAddress string `yaml:"listenAddress"`
 }
 
-func New(options []Option) *Box {
+func New(options ...Option) *Box {
 	box := &Box{
 		Config: &Config{},
 	}
