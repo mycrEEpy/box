@@ -50,6 +50,7 @@ func WithWebServer() Option {
 		}
 
 		box.WebServer.Echo.HideBanner = true
+		box.WebServer.Echo.HidePort = true
 
 		if box.Config.ListenAddress == "" {
 			box.Config.ListenAddress = ":8080"
