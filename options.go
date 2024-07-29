@@ -56,9 +56,6 @@ func WithWebServer() Option {
 			box.Config.ListenAddress = ":8000"
 		}
 
-		box.WebServer.Echo.GET("/healthz", box.WebServer.LivenessProbe)
-		box.WebServer.Echo.GET("/readyz", box.WebServer.ReadinessProbe)
-
 		if box.WebServer.LivenessProbe == nil {
 			box.WebServer.LivenessProbe = func(c echo.Context) error {
 				return c.NoContent(http.StatusOK)
@@ -70,5 +67,8 @@ func WithWebServer() Option {
 				return c.NoContent(http.StatusOK)
 			}
 		}
+
+		box.WebServer.Echo.GET("/healthz", box.WebServer.LivenessProbe)
+		box.WebServer.Echo.GET("/readyz", box.WebServer.ReadinessProbe)
 	}
 }
