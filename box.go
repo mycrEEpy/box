@@ -10,6 +10,12 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+var (
+	DefaultConfig = &Config{
+		ListenAddress: ":8000",
+	}
+)
+
 type Box struct {
 	Config    *Config
 	WebServer *WebServer
@@ -22,12 +28,12 @@ type WebServer struct {
 }
 
 type Config struct {
-	ListenAddress string `yaml:"listenAddress"`
+	ListenAddress string `yaml:"listenAddress" json:"listenAddress"`
 }
 
 func New(options ...Option) *Box {
 	box := &Box{
-		Config: &Config{},
+		Config: DefaultConfig,
 	}
 
 	for _, option := range options {
