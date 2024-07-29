@@ -47,6 +47,12 @@ func WithWebServer() Option {
 	return func(box *Box) {
 		box.WebServer = &WebServer{
 			Echo: echo.New(),
+			defaultLivenessProbe: func(c echo.Context) error {
+				return c.NoContent(http.StatusOK)
+			},
+			defaultReadinessProbe: func(c echo.Context) error {
+				return c.NoContent(http.StatusOK)
+			},
 		}
 
 		box.WebServer.Echo.HideBanner = true
@@ -56,19 +62,27 @@ func WithWebServer() Option {
 			box.Config.ListenAddress = ":8000"
 		}
 
-		if box.WebServer.LivenessProbe == nil {
-			box.WebServer.LivenessProbe = func(c echo.Context) error {
-				return c.NoContent(http.StatusOK)
-			}
+		box.WebServer.Echo.GET("/healthz", box.WebServer.defaultLivenessProbe)
+		box.WebServer.Echo.GET("/readyz", box.WebServer.defaultReadinessProbe)
+	}
+}
+
+func WithLivenessProbe(probe func(c echo.Context) error) Option {
+	return func(box *Box) {
+		if box.WebServer == nil {
+			WithWebServer()(box)
 		}
 
-		if box.WebServer.ReadinessProbe == nil {
-			box.WebServer.ReadinessProbe = func(c echo.Context) error {
-				return c.NoContent(http.StatusOK)
-			}
+		box.WebServer.Echo.GET("/healthz", probe)
+	}
+}
+
+func WithReadinessProbe(probe func(c echo.Context) error) Option {
+	return func(box *Box) {
+		if box.WebServer == nil {
+			WithWebServer()(box)
 		}
 
-		box.WebServer.Echo.GET("/healthz", box.WebServer.LivenessProbe)
-		box.WebServer.Echo.GET("/readyz", box.WebServer.ReadinessProbe)
+		box.WebServer.Echo.GET("/readyz", probe)
 	}
 }

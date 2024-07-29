@@ -23,8 +23,8 @@ type Box struct {
 
 type WebServer struct {
 	*echo.Echo
-	LivenessProbe  func(c echo.Context) error
-	ReadinessProbe func(c echo.Context) error
+	defaultLivenessProbe  func(c echo.Context) error
+	defaultReadinessProbe func(c echo.Context) error
 }
 
 type Config struct {
