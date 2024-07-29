@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"gopkg.in/yaml.v3"
 )
 
@@ -59,15 +60,17 @@ func WithWebServer() Option {
 			},
 		}
 
-		box.WebServer.Echo.HideBanner = true
-		box.WebServer.Echo.HidePort = true
+		box.WebServer.HideBanner = true
+		box.WebServer.HidePort = true
 
 		if box.Config.ListenAddress == "" {
 			box.Config.ListenAddress = ":8000"
 		}
 
-		box.WebServer.Echo.GET("/healthz", box.WebServer.defaultLivenessProbe)
-		box.WebServer.Echo.GET("/readyz", box.WebServer.defaultReadinessProbe)
+		box.WebServer.Use(middleware.Recover())
+
+		box.WebServer.GET("/healthz", box.WebServer.defaultLivenessProbe)
+		box.WebServer.GET("/readyz", box.WebServer.defaultReadinessProbe)
 	}
 }
 
@@ -77,7 +80,7 @@ func WithLivenessProbe(probe func(c echo.Context) error) Option {
 			WithWebServer()(box)
 		}
 
-		box.WebServer.Echo.GET("/healthz", probe)
+		box.WebServer.GET("/healthz", probe)
 	}
 }
 
@@ -87,6 +90,6 @@ func WithReadinessProbe(probe func(c echo.Context) error) Option {
 			WithWebServer()(box)
 		}
 
-		box.WebServer.Echo.GET("/readyz", probe)
+		box.WebServer.GET("/readyz", probe)
 	}
 }
