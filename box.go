@@ -11,13 +11,13 @@ import (
 )
 
 var (
-	DefaultConfig = &Config{
+	DefaultConfig = Config{
 		ListenAddress: ":8000",
 	}
 )
 
 type Box struct {
-	Config    *Config
+	Config    Config
 	WebServer *WebServer
 }
 
@@ -28,7 +28,11 @@ type WebServer struct {
 }
 
 type Config struct {
-	ListenAddress string `yaml:"listenAddress" json:"listenAddress"`
+	ListenAddress string `json:"listenAddress" yaml:"listenAddress"`
+}
+
+type configWrapper struct {
+	Config Config `json:"box" yaml:"box"`
 }
 
 func New(options ...Option) *Box {

@@ -1,1 +1,2 @@
-listenAddress: "localhost:8000"
+box:
+  listenAddress: "localhost:8000"

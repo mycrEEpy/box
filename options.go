@@ -15,7 +15,7 @@ type Option func(*Box)
 
 func WithConfig(config Config) Option {
 	return func(box *Box) {
-		box.Config = &config
+		box.Config = config
 	}
 }
 
@@ -28,11 +28,13 @@ func WithConfigFromPath(path string) Option {
 
 		defer file.Close()
 
+		var wrapper configWrapper
+
 		switch {
 		case strings.HasSuffix(path, ".yaml"), strings.HasSuffix(path, ".yml"):
-			err = yaml.NewDecoder(file).Decode(box.Config)
+			err = yaml.NewDecoder(file).Decode(&wrapper)
 		case strings.HasSuffix(path, ".json"):
-			err = json.NewDecoder(file).Decode(box.Config)
+			err = json.NewDecoder(file).Decode(&wrapper)
 		default:
 			err = fmt.Errorf("unsupported file type: %s", path)
 		}
@@ -40,6 +42,8 @@ func WithConfigFromPath(path string) Option {
 		if err != nil {
 			panic(err)
 		}
+
+		box.Config = wrapper.Config
 	}
 }
 
