@@ -53,19 +53,22 @@ func WithWebServer() Option {
 		box.WebServer.Echo.HidePort = true
 
 		if box.Config.ListenAddress == "" {
-			box.Config.ListenAddress = ":8080"
+			box.Config.ListenAddress = ":8000"
 		}
 
+		box.WebServer.Echo.GET("/healthz", box.WebServer.LivenessProbe)
+		box.WebServer.Echo.GET("/readyz", box.WebServer.ReadinessProbe)
+
 		if box.WebServer.LivenessProbe == nil {
-			box.WebServer.Echo.GET("/healthz", func(c echo.Context) error {
+			box.WebServer.LivenessProbe = func(c echo.Context) error {
 				return c.NoContent(http.StatusOK)
-			})
+			}
 		}
 
 		if box.WebServer.ReadinessProbe == nil {
-			box.WebServer.Echo.GET("/readyz", func(c echo.Context) error {
+			box.WebServer.ReadinessProbe = func(c echo.Context) error {
 				return c.NoContent(http.StatusOK)
-			})
+			}
 		}
 	}
 }
