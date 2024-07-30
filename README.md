@@ -1,5 +1,8 @@
 # box
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/mycreepy/box.svg)](https://pkg.go.dev/github.com/mycreepy/box)
+[![Go Report Card](https://goreportcard.com/badge/github.com/mycreepy/box?style=flat-square)](https://goreportcard.com/report/github.com/mycreepy/box)
+
 `box` is an opinionated & minimalistic application framework for Go.
 
 ## Functionality
