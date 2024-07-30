@@ -1,2 +1,3 @@
 box:
+  logLevel: info
   listenAddress: "localhost:8000"

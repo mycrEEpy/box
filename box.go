@@ -3,9 +3,11 @@ package box
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -31,6 +33,7 @@ type WebServer struct {
 }
 
 type Config struct {
+	LogLevel      string `yaml:"logLevel"`
 	ListenAddress string `yaml:"listenAddress"`
 }
 
@@ -39,10 +42,9 @@ type configWrapper struct {
 }
 
 func New(options ...Option) *Box {
-	box := &Box{
-		Config: DefaultConfig,
-		Logger: setupLogger(),
-	}
+	box := &Box{}
+
+	WithConfig(DefaultConfig)(box)
 
 	for _, option := range options {
 		option(box)
@@ -51,12 +53,33 @@ func New(options ...Option) *Box {
 	return box
 }
 
-func setupLogger() *slog.Logger {
+func setupLogger(levelStr string) *slog.Logger {
 	if isRunningInKubernetes() {
-		return slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
+		return slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+			Level: parseLogLevel(levelStr, slog.LevelInfo),
+		}))
 	}
 
-	return slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	return slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: parseLogLevel(levelStr, slog.LevelDebug),
+	}))
+}
+
+func parseLogLevel(levelStr string, defaultLevel slog.Level) slog.Level {
+	switch strings.ToLower(levelStr) {
+	case "":
+		return defaultLevel
+	case "debug":
+		return slog.LevelDebug
+	case "info":
+		return slog.LevelInfo
+	case "warn":
+		return slog.LevelWarn
+	case "error":
+		return slog.LevelError
+	default:
+		panic(fmt.Errorf("unknown log level: %s", levelStr))
+	}
 }
 
 func (box *Box) ListenAndServe() error {

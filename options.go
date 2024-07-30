@@ -14,6 +14,7 @@ type Option func(*Box)
 func WithConfig(config Config) Option {
 	return func(box *Box) {
 		box.Config = config
+		box.Logger = setupLogger(box.Config.LogLevel)
 	}
 }
 
@@ -33,7 +34,7 @@ func WithConfigFromPath(path string) Option {
 			panic(err)
 		}
 
-		box.Config = wrapper.Config
+		WithConfig(wrapper.Config)(box)
 	}
 }
 
