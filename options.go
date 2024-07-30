@@ -1,11 +1,8 @@
 package box
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -31,15 +28,7 @@ func WithConfigFromPath(path string) Option {
 
 		var wrapper configWrapper
 
-		switch {
-		case strings.HasSuffix(path, ".yaml"), strings.HasSuffix(path, ".yml"):
-			err = yaml.NewDecoder(file).Decode(&wrapper)
-		case strings.HasSuffix(path, ".json"):
-			err = json.NewDecoder(file).Decode(&wrapper)
-		default:
-			err = fmt.Errorf("unsupported file type: %s", path)
-		}
-
+		err = yaml.NewDecoder(file).Decode(&wrapper)
 		if err != nil {
 			panic(err)
 		}

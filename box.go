@@ -31,7 +31,7 @@ type WebServer struct {
 }
 
 type Config struct {
-	ListenAddress string `json:"listenAddress" yaml:"listenAddress"`
+	ListenAddress string `yaml:"listenAddress"`
 }
 
 type configWrapper struct {
