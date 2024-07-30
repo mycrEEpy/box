@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"gopkg.in/yaml.v3"
@@ -57,8 +58,9 @@ func WithWebServer() Option {
 			box.Config.ListenAddress = ":8000"
 		}
 
-		box.WebServer.Use(middleware.Recover())
+		box.WebServer.Use(middleware.Recover(), echoprometheus.NewMiddleware("box_webserver"))
 
+		box.WebServer.GET("/metrics", echoprometheus.NewHandler())
 		box.WebServer.GET("/healthz", box.WebServer.defaultLivenessProbe)
 		box.WebServer.GET("/readyz", box.WebServer.defaultReadinessProbe)
 	}
