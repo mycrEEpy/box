@@ -52,12 +52,10 @@ func New(options ...Option) *Box {
 }
 
 func setupLogger() *slog.Logger {
-	logHandlerOptions := slog.HandlerOptions{Level: slog.LevelInfo}
-
-	logger := slog.New(slog.NewTextHandler(os.Stdout, &logHandlerOptions))
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
 
 	if isRunningInKubernetes() {
-		logger = slog.New(slog.NewJSONHandler(os.Stdout, &logHandlerOptions))
+		logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	}
 
 	return logger
