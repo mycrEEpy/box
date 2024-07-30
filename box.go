@@ -3,6 +3,8 @@ package box
 import (
 	"context"
 	"errors"
+	"log/slog"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -18,6 +20,7 @@ var (
 
 type Box struct {
 	Config    Config
+	Logger    *slog.Logger
 	WebServer *WebServer
 }
 
@@ -38,6 +41,7 @@ type configWrapper struct {
 func New(options ...Option) *Box {
 	box := &Box{
 		Config: DefaultConfig,
+		Logger: setupLogger(),
 	}
 
 	for _, option := range options {
@@ -45,6 +49,18 @@ func New(options ...Option) *Box {
 	}
 
 	return box
+}
+
+func setupLogger() *slog.Logger {
+	logHandlerOptions := slog.HandlerOptions{Level: slog.LevelInfo}
+
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &logHandlerOptions))
+
+	if isRunningInKubernetes() {
+		logger = slog.New(slog.NewJSONHandler(os.Stdout, &logHandlerOptions))
+	}
+
+	return logger
 }
 
 func (box *Box) ListenAndServe() error {

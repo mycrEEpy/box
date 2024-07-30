@@ -27,7 +27,7 @@ func main() {
 
 	app.WebServer.GET("/", app.helloWorld)
 
-	slog.Info("starting webserver", slog.String("listenAddress", app.Config.ListenAddress))
+	app.Logger.Info("starting webserver", slog.String("listenAddress", app.Config.ListenAddress))
 
 	err := app.ListenAndServe()
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
