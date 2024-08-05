@@ -14,24 +14,26 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-var (
-	DefaultConfig = Config{
-		ListenAddress: ":8000",
-	}
-)
+// DefaultConfig is the default Config for a Box.
+var DefaultConfig = Config{
+	ListenAddress: ":8000",
+}
 
+// Box is the main struct of this package which should be embedded into other structs.
 type Box struct {
 	Config    Config
 	Logger    *slog.Logger
 	WebServer *WebServer
 }
 
+// WebServer provides the web server functionality of Box by embedding an Echo instance.
 type WebServer struct {
 	*echo.Echo
 	defaultLivenessProbe  func(c echo.Context) error
 	defaultReadinessProbe func(c echo.Context) error
 }
 
+// Config is the configuration struct for a Box.
 type Config struct {
 	LogLevel      string `yaml:"logLevel"`
 	ListenAddress string `yaml:"listenAddress"`
@@ -41,6 +43,7 @@ type configWrapper struct {
 	Config Config `json:"box" yaml:"box"`
 }
 
+// New constructs a new Box with various Option parameters.
 func New(options ...Option) *Box {
 	box := &Box{}
 
@@ -82,6 +85,7 @@ func parseLogLevel(levelStr string, defaultLevel slog.Level) slog.Level {
 	}
 }
 
+// ListenAndServe starts the listener of the WebServer and blocks until a SIGINT or SIGTERM signal is received.
 func (box *Box) ListenAndServe() error {
 	if box.WebServer == nil {
 		return errors.New("web server has not been initialized")

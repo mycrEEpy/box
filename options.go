@@ -10,8 +10,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// Option is a modifier function which can alter the provided functionality of a Box.
 type Option func(*Box)
 
+// WithConfig configures the Box with the given Config.
 func WithConfig(config Config) Option {
 	return func(box *Box) {
 		box.Config = config
@@ -19,6 +21,7 @@ func WithConfig(config Config) Option {
 	}
 }
 
+// WithConfigFromPath reads a configuration file from the given path and calls WithConfig.
 func WithConfigFromPath(path string) Option {
 	return func(box *Box) {
 		file, err := os.Open(path)
@@ -39,6 +42,7 @@ func WithConfigFromPath(path string) Option {
 	}
 }
 
+// WithWebServer enables the web server functionality provided by WebServer.
 func WithWebServer() Option {
 	return func(box *Box) {
 		box.WebServer = &WebServer{
@@ -66,6 +70,7 @@ func WithWebServer() Option {
 	}
 }
 
+// WithLivenessProbe allows to override the default liveness probe of the WebServer.
 func WithLivenessProbe(probe func(c echo.Context) error) Option {
 	return func(box *Box) {
 		if box.WebServer == nil {
@@ -76,6 +81,7 @@ func WithLivenessProbe(probe func(c echo.Context) error) Option {
 	}
 }
 
+// WithReadinessProbe allows to override the default readiness probe of the WebServer.
 func WithReadinessProbe(probe func(c echo.Context) error) Option {
 	return func(box *Box) {
 		if box.WebServer == nil {
