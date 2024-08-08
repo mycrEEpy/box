@@ -21,7 +21,11 @@ var DefaultConfig = Config{
 
 // Box is the main struct of this package which should be embedded into other structs.
 type Box struct {
-	Config    Config
+	Config Config
+
+	Context       context.Context
+	cancelContext context.CancelFunc
+
 	Logger    *slog.Logger
 	WebServer *WebServer
 }
@@ -43,9 +47,15 @@ type configWrapper struct {
 	Config Config `json:"box" yaml:"box"`
 }
 
-// New constructs a new Box with various Option parameters.
+// New constructs a new Box with various Option parameters and a Context,
+// which is canceled when the SIGINT or SIGTERM signals are received.
 func New(options ...Option) *Box {
-	box := &Box{}
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+
+	box := &Box{
+		Context:       ctx,
+		cancelContext: cancel,
+	}
 
 	WithConfig(DefaultConfig)(box)
 
@@ -85,17 +95,21 @@ func parseLogLevel(levelStr string, defaultLevel slog.Level) slog.Level {
 	}
 }
 
-// ListenAndServe starts the listener of the WebServer and blocks until a SIGINT or SIGTERM signal is received.
+// CancelContext cancels the Context of the Box.
+func (box *Box) CancelContext() {
+	box.cancelContext()
+}
+
+// ListenAndServe starts the listener of the WebServer and blocks until the Context of the Box is canceled.
 func (box *Box) ListenAndServe() error {
 	if box.WebServer == nil {
 		return errors.New("web server has not been initialized")
 	}
 
-	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer cancel()
+	defer box.cancelContext()
 
 	go func() {
-		<-ctx.Done()
+		<-box.Context.Done()
 
 		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer shutdownCancel()
