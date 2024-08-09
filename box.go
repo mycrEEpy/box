@@ -41,6 +41,8 @@ type WebServer struct {
 type Config struct {
 	LogLevel      string `yaml:"logLevel"`
 	ListenAddress string `yaml:"listenAddress"`
+	TLSCertFile   string `yaml:"tlsCertFile"`
+	TLSKeyFile    string `yaml:"tlsKeyFile"`
 }
 
 type configWrapper struct {
@@ -101,6 +103,8 @@ func (box *Box) CancelContext() {
 }
 
 // ListenAndServe starts the listener of the WebServer and blocks until the Context of the Box is canceled.
+// If TLSCertFile & TLSKeyFile are set, it starts an HTTPS server, otherwise an HTTP server.
+// If the WebServer is not initialized, it returns an error.
 func (box *Box) ListenAndServe() error {
 	if box.WebServer == nil {
 		return errors.New("web server has not been initialized")
@@ -116,6 +120,10 @@ func (box *Box) ListenAndServe() error {
 
 		_ = box.WebServer.Echo.Shutdown(shutdownCtx)
 	}()
+
+	if len(box.Config.TLSCertFile) > 0 && len(box.Config.TLSKeyFile) > 0 {
+		return box.WebServer.Echo.StartTLS(box.Config.ListenAddress, box.Config.TLSCertFile, box.Config.TLSKeyFile)
+	}
 
 	return box.WebServer.Echo.Start(box.Config.ListenAddress)
 }

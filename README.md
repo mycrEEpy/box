@@ -9,6 +9,7 @@
 
 `box` provides the following functionality:
 
+* Context which is canceled when the SIGINT or SIGTERM signal is received
 * Logger based on slog which automatically uses the JSON handler in Kubernetes
 * Optional web server based on Echo with liveness/readiness & metrics endpoints
 
