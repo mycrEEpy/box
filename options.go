@@ -1,6 +1,7 @@
 package box
 
 import (
+	"flag"
 	"net/http"
 	"os"
 
@@ -39,6 +40,24 @@ func WithConfigFromPath(path string) Option {
 		}
 
 		WithConfig(wrapper.Config)(box)
+	}
+}
+
+// WithFlags registers all Config fields as flags with the flag package and calls flag.Parse.
+// The registered flags are:
+//
+//	-log-level
+//	-listen-address
+//	-tls-cert-file
+//	-tls-key-file
+func WithFlags() Option {
+	return func(box *Box) {
+		flag.StringVar(&box.Config.LogLevel, "log-level", box.Config.LogLevel, "Log level")
+		flag.StringVar(&box.Config.ListenAddress, "listen-address", box.Config.ListenAddress, "Webserver listen address")
+		flag.StringVar(&box.Config.TLSCertFile, "tls-cert-file", box.Config.TLSCertFile, "Webserver TLS certificate file")
+		flag.StringVar(&box.Config.TLSKeyFile, "tls-key-file", box.Config.TLSKeyFile, "Webserver TLS key file")
+
+		flag.Parse()
 	}
 }
 
