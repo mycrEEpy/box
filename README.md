@@ -2,6 +2,7 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/mycreepy/box.svg)](https://pkg.go.dev/github.com/mycreepy/box)
 [![Go Report Card](https://goreportcard.com/badge/github.com/mycreepy/box?style=flat-square)](https://goreportcard.com/report/github.com/mycreepy/box)
+[![Go Build & Test](https://github.com/mycrEEpy/box/actions/workflows/build.yml/badge.svg)](https://github.com/mycrEEpy/box/actions/workflows/build.yml)
 [![Go Coverage](https://github.com/mycreepy/box/wiki/coverage.svg)](https://raw.githack.com/wiki/mycreepy/box/coverage.html)
 
 ![Gopher in a box](https://i.ibb.co/wzgHfC1/box-gopher.png)
