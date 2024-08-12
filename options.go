@@ -2,6 +2,7 @@ package box
 
 import (
 	"flag"
+	"log/slog"
 	"net/http"
 	"os"
 
@@ -58,6 +59,13 @@ func WithFlags() Option {
 		flag.StringVar(&box.Config.TLSKeyFile, "tls-key-file", box.Config.TLSKeyFile, "Webserver TLS key file")
 
 		flag.Parse()
+	}
+}
+
+// WithGlobalLogger sets the global slog logger to the Box's logger.
+func WithGlobalLogger() Option {
+	return func(box *Box) {
+		slog.SetDefault(box.Logger)
 	}
 }
 
