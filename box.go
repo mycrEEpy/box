@@ -26,7 +26,9 @@ type Box struct {
 	Context       context.Context
 	cancelContext context.CancelFunc
 
-	Logger    *slog.Logger
+	Logger       *slog.Logger
+	loggerGlobal bool
+
 	WebServer *WebServer
 }
 
@@ -66,6 +68,10 @@ func New(options ...Option) *Box {
 	}
 
 	box.Logger = setupLogger(box.Config.LogLevel)
+
+	if box.loggerGlobal {
+		slog.SetDefault(box.Logger)
+	}
 
 	return box
 }

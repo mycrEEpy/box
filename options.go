@@ -2,7 +2,6 @@ package box
 
 import (
 	"flag"
-	"log/slog"
 	"net/http"
 	"os"
 
@@ -64,7 +63,7 @@ func WithFlags() Option {
 // WithGlobalLogger sets the global slog logger to the Box's logger.
 func WithGlobalLogger() Option {
 	return func(box *Box) {
-		slog.SetDefault(box.Logger)
+		box.loggerGlobal = true
 	}
 }
 
