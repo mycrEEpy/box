@@ -65,6 +65,8 @@ func New(options ...Option) *Box {
 		option(box)
 	}
 
+	box.Logger = setupLogger(box.Config.LogLevel)
+
 	return box
 }
 
