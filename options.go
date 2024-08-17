@@ -21,7 +21,8 @@ func WithConfig(config Config) Option {
 	}
 }
 
-// WithConfigFromPath reads a configuration file from the given path and calls WithConfig.
+// WithConfigFromPath reads a configuration file from the given path, decodes it from YAML and calls WithConfig.
+// Panics if the file can not be opened or decoded.
 func WithConfigFromPath(path string) Option {
 	return func(box *Box) {
 		file, err := os.Open(path)
@@ -43,6 +44,7 @@ func WithConfigFromPath(path string) Option {
 }
 
 // WithFlags registers all Config fields as flags with the flag package and calls flag.Parse.
+// Panics if flag.Parse has already been called.
 // The registered flags are:
 //
 //	-log-level
@@ -55,6 +57,10 @@ func WithFlags() Option {
 		flag.StringVar(&box.Config.ListenAddress, "listen-address", box.Config.ListenAddress, "Webserver listen address")
 		flag.StringVar(&box.Config.TLSCertFile, "tls-cert-file", box.Config.TLSCertFile, "Webserver TLS certificate file")
 		flag.StringVar(&box.Config.TLSKeyFile, "tls-key-file", box.Config.TLSKeyFile, "Webserver TLS key file")
+
+		if flag.Parsed() {
+			panic("flag.Parse() has already been called")
+		}
 
 		flag.Parse()
 	}
