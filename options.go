@@ -1,6 +1,7 @@
 package box
 
 import (
+	"errors"
 	"flag"
 	"net/http"
 	"os"
@@ -10,6 +11,9 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"gopkg.in/yaml.v3"
 )
+
+// ErrFlagsAlreadyParsed indicates that the flag.Parse function has already been called.
+var ErrFlagsAlreadyParsed = errors.New("flag.Parse() has already been called")
 
 // Option is a modifier function which can alter the provided functionality of a Box.
 type Option func(*Box)
@@ -59,7 +63,7 @@ func WithFlags() Option {
 		flag.StringVar(&box.Config.TLSKeyFile, "tls-key-file", box.Config.TLSKeyFile, "Webserver TLS key file")
 
 		if flag.Parsed() {
-			panic("flag.Parse() has already been called")
+			panic(ErrFlagsAlreadyParsed)
 		}
 
 		flag.Parse()

@@ -3,7 +3,6 @@ package box_test
 import (
 	"context"
 	"errors"
-	"flag"
 	"log/slog"
 	"net/http"
 	"testing"
@@ -53,14 +52,19 @@ func TestWithConfigFromPath(t *testing.T) {
 }
 
 func TestWithFlags(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			// we expect to panic due to go test already parsing flags
+			if !errors.Is(r.(error), box.ErrFlagsAlreadyParsed) {
+				t.Errorf("expected %s, got %s", box.ErrFlagsAlreadyParsed, r)
+			}
+		}
+	}()
+
 	b := box.New(box.WithFlags())
 	if b == nil {
 		t.Error("box.New() returned nil")
 		return
-	}
-
-	if !flag.Parsed() {
-		t.Errorf("flag.Parsed() should be true")
 	}
 }
 
