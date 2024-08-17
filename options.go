@@ -48,7 +48,7 @@ func WithConfigFromPath(path string) Option {
 }
 
 // WithFlags registers all Config fields as flags with the flag package and calls flag.Parse.
-// Panics if flag.Parse has already been called.
+// Panics with ErrFlagsAlreadyParsed if flag.Parse has already been called.
 // The registered flags are:
 //
 //	-log-level
