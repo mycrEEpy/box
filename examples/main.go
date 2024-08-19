@@ -18,9 +18,10 @@ func (app *App) helloWorld(c echo.Context) error {
 }
 
 func main() {
+	box.MustRegisterAndParseFlags()
+
 	app := App{
 		Box: box.New(
-			box.WithConfigFromPath("./config.yml"),
 			box.WithWebServer(),
 		),
 	}

@@ -21,6 +21,17 @@ func TestNew(t *testing.T) {
 	}
 }
 
+func TestMustRegisterFlags(t *testing.T) {
+	// Should not panic
+	defer func() {
+		if r := recover(); r != nil {
+			t.Errorf("MustRegisterFlags() panicked: %v", r)
+		}
+	}()
+
+	box.MustRegisterFlags()
+}
+
 func TestWithConfig(t *testing.T) {
 	b := box.New(box.WithConfig(box.Config{
 		LogLevel: "warn",
@@ -48,23 +59,6 @@ func TestWithConfigFromPath(t *testing.T) {
 
 	if !b.Logger.Enabled(context.Background(), slog.LevelError) {
 		t.Error("logger should log in error level")
-	}
-}
-
-func TestWithFlags(t *testing.T) {
-	defer func() {
-		if r := recover(); r != nil {
-			// we expect to panic due to go test already parsing flags
-			if !errors.Is(r.(error), box.ErrFlagsAlreadyParsed) {
-				t.Errorf("expected %s, got %s", box.ErrFlagsAlreadyParsed, r)
-			}
-		}
-	}()
-
-	b := box.New(box.WithFlags())
-	if b == nil {
-		t.Error("box.New() returned nil")
-		return
 	}
 }
 

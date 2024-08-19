@@ -63,6 +63,8 @@ func New(options ...Option) *Box {
 
 	WithConfig(DefaultConfig)(box)
 
+	setupBoxWithFlags(box)
+
 	for _, option := range options {
 		option(box)
 	}
