@@ -21,7 +21,9 @@ jobs:
       run: go build -v .
 
     - name: Test
-      run: go test -v $(go list ./... | grep -v /examples/)
+      run: go test -v $(go list ./... | grep -v /examples/) -coverprofile coverage.txt
 
     - name: Coverage
       uses: ncruces/go-coverage-report@v0
+      with:
+        coverage-file: coverage.txt
