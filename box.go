@@ -8,10 +8,13 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
+	"github.com/KimMachineGun/automemlimit/memlimit"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/automaxprocs/maxprocs"
 )
 
 // DefaultConfig is the default Config for a Box.
@@ -30,6 +33,9 @@ type Box struct {
 	loggerGlobal bool
 
 	WebServer *WebServer
+
+	onceCpu sync.Once
+	onceMem sync.Once
 }
 
 // WebServer provides the web server functionality of Box by embedding an Echo instance.
@@ -41,10 +47,12 @@ type WebServer struct {
 
 // Config is the configuration struct for a Box.
 type Config struct {
-	LogLevel      string `yaml:"logLevel"`
-	ListenAddress string `yaml:"listenAddress"`
-	TLSCertFile   string `yaml:"tlsCertFile"`
-	TLSKeyFile    string `yaml:"tlsKeyFile"`
+	LogLevel      string  `yaml:"logLevel"`
+	ListenAddress string  `yaml:"listenAddress"`
+	TLSCertFile   string  `yaml:"tlsCertFile"`
+	TLSKeyFile    string  `yaml:"tlsKeyFile"`
+	CpuMinThreads int     `yaml:"cpuMinThreads"`
+	MemLimitRatio float64 `yaml:"memLimitRatio"`
 }
 
 type configWrapper struct {
@@ -75,7 +83,28 @@ func New(options ...Option) *Box {
 		slog.SetDefault(box.Logger)
 	}
 
+	err := setupCgroupLimits(box.Config.CpuMinThreads, box.Config.MemLimitRatio)
+	if err != nil {
+		panic(err)
+	}
+
 	return box
+}
+
+func setupCgroupLimits(minThreads int, memLimitRatio float64) error {
+	if isRunningInKubernetes() {
+		_, err := maxprocs.Set(maxprocs.Min(minThreads))
+		if err != nil {
+			return err
+		}
+
+		_, err = memlimit.SetGoMemLimit(memLimitRatio)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func setupLogger(levelStr string) *slog.Logger {

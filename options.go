@@ -98,3 +98,23 @@ func WithReadinessProbe(probe func(c echo.Context) error) Option {
 		box.WebServer.GET("/readyz", probe)
 	}
 }
+
+// WithCpuMinThreads sets the minimum GOMAXPROCS value that will be used. Values below 1 are ignored.
+// Setting the CpuMinThreads by Config or flag has precedence over WithCpuMinThreads.
+func WithCpuMinThreads(threads int) Option {
+	return func(box *Box) {
+		box.onceCpu.Do(func() {
+			box.Config.CpuMinThreads = threads
+		})
+	}
+}
+
+// WithMemLimitRatio sets GOMEMLIMIT with the value from the cgroup's memory limit and given ratio.
+// Setting the MemLimitRatio by Config or flag has precedence over WithMemLimitRatio.
+func WithMemLimitRatio(ratio float64) Option {
+	return func(box *Box) {
+		box.onceMem.Do(func() {
+			box.Config.MemLimitRatio = ratio
+		})
+	}
+}
