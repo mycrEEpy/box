@@ -93,9 +93,17 @@ func New(options ...Option) *Box {
 
 func setupCgroupLimits(minThreads int, memLimitRatio float64) error {
 	if isRunningInKubernetes() {
+		if minThreads == 0 {
+			minThreads = 1
+		}
+
 		_, err := maxprocs.Set(maxprocs.Min(minThreads))
 		if err != nil {
 			return err
+		}
+
+		if memLimitRatio == 0 {
+			memLimitRatio = 0.8
 		}
 
 		_, err = memlimit.SetGoMemLimit(memLimitRatio)
