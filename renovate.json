@@ -5,9 +5,6 @@
     "github>mycreepy/renovate-config:go",
     "github>mycreepy/renovate-config:pkgx"
   ],
-  "postUpdateOptions": [
-    "gomodTidy"
-  ],
   "packageRules": [
     {
       "matchUpdateTypes": ["patch", "pin", "digest"],
