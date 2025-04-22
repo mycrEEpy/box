@@ -21,9 +21,7 @@ func main() {
 	box.MustRegisterAndParseFlags()
 
 	app := App{
-		Box: box.New(
-			box.WithWebServer(),
-		),
+		Box: box.New(box.WithWebServer()),
 	}
 
 	app.WebServer.GET("/", app.helloWorld)
