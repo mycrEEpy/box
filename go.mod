@@ -2,7 +2,7 @@ module github.com/mycreepy/box
 
 go 1.23.0
 
-toolchain go1.24.2
+toolchain go1.24.3
 
 require (
 	github.com/labstack/echo-contrib v0.17.3
