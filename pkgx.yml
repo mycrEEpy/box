@@ -1,4 +1,4 @@
 dependencies:
-  go.dev: 1.24.3
+  go.dev: 1.24.4
   golangci-lint.run: 2.1.6
   gnu.org/make: 4.3.0
