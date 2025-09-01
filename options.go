@@ -100,6 +100,7 @@ func WithReadinessProbe(probe func(c echo.Context) error) Option {
 	}
 }
 
+// WithTraceFlightRecorder creates a tracing flight recorder and exposes it on /tracez.
 func WithTraceFlightRecorder(cfg trace.FlightRecorderConfig) Option {
 	return func(box *Box) {
 		if box.WebServer == nil {
