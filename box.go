@@ -78,6 +78,18 @@ func New(options ...Option) *Box {
 		slog.SetDefault(box.Logger)
 	}
 
+	if box.flightRecorder != nil {
+		err := box.flightRecorder.Start()
+		if err != nil {
+			panic(fmt.Errorf("failed to start trace flight recorder: %w", err))
+		}
+
+		go func() {
+			<-box.Context.Done()
+			box.flightRecorder.Stop()
+		}()
+	}
+
 	return box
 }
 

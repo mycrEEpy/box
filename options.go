@@ -1,7 +1,6 @@
 package box
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"runtime/trace"
@@ -110,16 +109,6 @@ func WithTraceFlightRecorder() Option {
 		box.flightRecorder = trace.NewFlightRecorder(trace.FlightRecorderConfig{
 			MaxBytes: 16 << 20, // 16 MB
 		})
-
-		err := box.flightRecorder.Start()
-		if err != nil {
-			panic(fmt.Errorf("failed to start trace flight recorder: %w", err))
-		}
-
-		go func() {
-			<-box.Context.Done()
-			box.flightRecorder.Stop()
-		}()
 
 		box.WebServer.GET("/tracez", func(c echo.Context) error {
 			if box.flightRecorder == nil || !box.flightRecorder.Enabled() {
