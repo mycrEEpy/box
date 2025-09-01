@@ -100,15 +100,13 @@ func WithReadinessProbe(probe func(c echo.Context) error) Option {
 	}
 }
 
-func WithTraceFlightRecorder() Option {
+func WithTraceFlightRecorder(cfg trace.FlightRecorderConfig) Option {
 	return func(box *Box) {
 		if box.WebServer == nil {
 			WithWebServer()(box)
 		}
 
-		box.flightRecorder = trace.NewFlightRecorder(trace.FlightRecorderConfig{
-			MaxBytes: 16 << 20, // 16 MB
-		})
+		box.flightRecorder = trace.NewFlightRecorder(cfg)
 
 		box.WebServer.GET("/tracez", func(c echo.Context) error {
 			if box.flightRecorder == nil || !box.flightRecorder.Enabled() {
