@@ -15,7 +15,8 @@
 
 * Context which is canceled when the SIGINT or SIGTERM signal is received
 * Logger based on slog which automatically uses the JSON handler in Kubernetes
-* Optional web server based on Echo with liveness/readiness & metrics endpoints
+* Optional web server based on Echo with `/healthz`, `/readyz` & `/metrics` endpoints
+* Optional trace flight recorder with `/tracez` endpoint
 
 ## Usage
 

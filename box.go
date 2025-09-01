@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"runtime/trace"
 	"strings"
 	"syscall"
 	"time"
@@ -30,6 +31,8 @@ type Box struct {
 	loggerGlobal bool
 
 	WebServer *WebServer
+
+	flightRecorder *trace.FlightRecorder
 }
 
 // WebServer provides the web server functionality of Box by embedding an Echo instance.

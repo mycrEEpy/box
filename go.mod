@@ -1,6 +1,6 @@
 module github.com/mycreepy/box
 
-go 1.23.0
+go 1.25.0
 
 require (
 	github.com/labstack/echo-contrib v0.17.4

@@ -1,8 +1,10 @@
 package box
 
 import (
+	"fmt"
 	"net/http"
 	"os"
+	"runtime/trace"
 
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
@@ -96,5 +98,36 @@ func WithReadinessProbe(probe func(c echo.Context) error) Option {
 		}
 
 		box.WebServer.GET("/readyz", probe)
+	}
+}
+
+func WithTraceFlightRecorder() Option {
+	return func(box *Box) {
+		if box.WebServer == nil {
+			WithWebServer()(box)
+		}
+
+		box.flightRecorder = trace.NewFlightRecorder(trace.FlightRecorderConfig{
+			MaxBytes: 16 << 20, // 16 MB
+		})
+
+		err := box.flightRecorder.Start()
+		if err != nil {
+			panic(fmt.Errorf("failed to start trace flight recorder: %w", err))
+		}
+
+		go func() {
+			<-box.Context.Done()
+			box.flightRecorder.Stop()
+		}()
+
+		box.WebServer.GET("/tracez", func(c echo.Context) error {
+			if box.flightRecorder == nil || !box.flightRecorder.Enabled() {
+				return c.NoContent(http.StatusServiceUnavailable)
+			}
+
+			_, err := box.flightRecorder.WriteTo(c.Response().Writer)
+			return err
+		})
 	}
 }
