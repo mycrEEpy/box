@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"runtime/trace"
 	"testing"
 	"time"
 
@@ -137,6 +138,14 @@ func TestWithLivenessProbe(t *testing.T) {
 
 	if b.WebServer == nil {
 		t.Error("WebServer is nil")
+		return
+	}
+}
+
+func TestWithFlightTraceRecorder(t *testing.T) {
+	b := box.New(box.WithTraceFlightRecorder(trace.FlightRecorderConfig{MinAge: time.Second * 10}))
+	if b == nil {
+		t.Error("box.New() returned nil")
 		return
 	}
 }
