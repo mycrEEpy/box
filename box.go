@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"runtime/trace"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -32,7 +33,8 @@ type Box struct {
 
 	WebServer *WebServer
 
-	flightRecorder *trace.FlightRecorder
+	flightRecorderMut sync.Mutex
+	flightRecorder    *trace.FlightRecorder
 }
 
 // WebServer provides the web server functionality of Box by embedding an Echo instance.

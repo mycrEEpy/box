@@ -115,6 +115,9 @@ func WithTraceFlightRecorder() Option {
 				return c.NoContent(http.StatusServiceUnavailable)
 			}
 
+			box.flightRecorderMut.Lock()
+			defer box.flightRecorderMut.Unlock()
+
 			_, err := box.flightRecorder.WriteTo(c.Response().Writer)
 			return err
 		})
