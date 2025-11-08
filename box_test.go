@@ -143,6 +143,8 @@ func TestWithLivenessProbe(t *testing.T) {
 }
 
 func TestWithFlightTraceRecorder(t *testing.T) {
+	prometheus.DefaultRegisterer = prometheus.NewRegistry()
+	
 	b := box.New(box.WithTraceFlightRecorder(trace.FlightRecorderConfig{MinAge: time.Second * 10}))
 	if b == nil {
 		t.Error("box.New() returned nil")
