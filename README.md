@@ -20,4 +20,4 @@
 
 ## Usage
 
-See [examples](examples/main.go).
+See [examples](examples/main.go) & [package documentation](https://pkg.go.dev/github.com/mycreepy/box).
