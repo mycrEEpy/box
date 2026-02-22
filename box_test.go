@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/mycreepy/box"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -144,7 +144,7 @@ func TestWithLivenessProbe(t *testing.T) {
 
 func TestWithFlightTraceRecorder(t *testing.T) {
 	prometheus.DefaultRegisterer = prometheus.NewRegistry()
-	
+
 	b := box.New(box.WithTraceFlightRecorder(trace.FlightRecorderConfig{MinAge: time.Second * 10}))
 	if b == nil {
 		t.Error("box.New() returned nil")

@@ -13,7 +13,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 // DefaultConfig is the default Config for a Box.
