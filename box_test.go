@@ -2,14 +2,13 @@ package box_test
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 	"net/http"
 	"runtime/trace"
 	"testing"
 	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/mycreepy/box"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -107,8 +106,8 @@ func TestWithWebServer(t *testing.T) {
 func TestWithReadinessProbe(t *testing.T) {
 	prometheus.DefaultRegisterer = prometheus.NewRegistry()
 
-	probe := func(c echo.Context) error {
-		return c.NoContent(http.StatusOK)
+	probe := func(c *echo.Context) error {
+		return c.NoContent(http.StatusNoContent)
 	}
 
 	b := box.New(box.WithReadinessProbe(probe))
@@ -121,13 +120,40 @@ func TestWithReadinessProbe(t *testing.T) {
 		t.Error("WebServer is nil")
 		return
 	}
+
+	go func() {
+		err := b.ListenAndServe()
+		if err != nil {
+			t.Errorf("ListenAndServe should have stopped gracefully but did not: %s", err)
+			return
+		}
+	}()
+
+	time.Sleep(500 * time.Millisecond)
+
+	resp, err := http.Get("http://localhost:8000/readyz")
+	if err != nil {
+		t.Errorf("http.Get returned an error: %s", err)
+		return
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusNoContent {
+		t.Errorf("http.Get returned wrong status code: %d", resp.StatusCode)
+		return
+	}
+
+	b.CancelContext()
+
+	time.Sleep(500 * time.Millisecond)
 }
 
 func TestWithLivenessProbe(t *testing.T) {
 	prometheus.DefaultRegisterer = prometheus.NewRegistry()
 
-	probe := func(c echo.Context) error {
-		return c.NoContent(http.StatusOK)
+	probe := func(c *echo.Context) error {
+		return c.NoContent(http.StatusNoContent)
 	}
 
 	b := box.New(box.WithLivenessProbe(probe))
@@ -140,11 +166,38 @@ func TestWithLivenessProbe(t *testing.T) {
 		t.Error("WebServer is nil")
 		return
 	}
+
+	go func() {
+		err := b.ListenAndServe()
+		if err != nil {
+			t.Errorf("ListenAndServe should have stopped gracefully but did not: %s", err)
+			return
+		}
+	}()
+
+	time.Sleep(500 * time.Millisecond)
+
+	resp, err := http.Get("http://localhost:8000/healthz")
+	if err != nil {
+		t.Errorf("http.Get returned an error: %s", err)
+		return
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusNoContent {
+		t.Errorf("http.Get returned wrong status code: %d", resp.StatusCode)
+		return
+	}
+
+	b.CancelContext()
+
+	time.Sleep(500 * time.Millisecond)
 }
 
 func TestWithFlightTraceRecorder(t *testing.T) {
 	prometheus.DefaultRegisterer = prometheus.NewRegistry()
-	
+
 	b := box.New(box.WithTraceFlightRecorder(trace.FlightRecorderConfig{MinAge: time.Second * 10}))
 	if b == nil {
 		t.Error("box.New() returned nil")
@@ -166,7 +219,7 @@ func TestBox_ListenAndServe(t *testing.T) {
 
 	go func() {
 		err := b.ListenAndServe()
-		if !errors.Is(err, http.ErrServerClosed) {
+		if err != nil {
 			t.Errorf("ListenAndServe should have stopped gracefully but did not: %s", err)
 			return
 		}
