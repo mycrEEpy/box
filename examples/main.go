@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"log/slog"
 	"net/http"
 
@@ -13,7 +12,7 @@ type App struct {
 	*box.Box
 }
 
-func (app *App) helloWorld(c echo.Context) error {
+func (app *App) helloWorld(c *echo.Context) error {
 	return c.String(http.StatusOK, "Hello, World!")
 }
 
@@ -29,7 +28,7 @@ func main() {
 	app.Logger.Info("starting webserver", slog.String("listenAddress", app.Config.ListenAddress))
 
 	err := app.ListenAndServe()
-	if err != nil && !errors.Is(err, http.ErrServerClosed) {
+	if err != nil {
 		panic(err)
 	}
 }

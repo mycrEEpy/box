@@ -40,8 +40,8 @@ type Box struct {
 // WebServer provides the web server functionality of Box by embedding an Echo instance.
 type WebServer struct {
 	*echo.Echo
-	defaultLivenessProbe  func(c echo.Context) error
-	defaultReadinessProbe func(c echo.Context) error
+	defaultLivenessProbe  echo.HandlerFunc
+	defaultReadinessProbe echo.HandlerFunc
 }
 
 // Config is the configuration struct for a Box.
@@ -139,18 +139,16 @@ func (box *Box) ListenAndServe() error {
 
 	defer box.cancelContext()
 
-	go func() {
-		<-box.Context.Done()
-
-		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 30*time.Second)
-		defer shutdownCancel()
-
-		_ = box.WebServer.Echo.Shutdown(shutdownCtx)
-	}()
-
-	if len(box.Config.TLSCertFile) > 0 && len(box.Config.TLSKeyFile) > 0 {
-		return box.WebServer.Echo.StartTLS(box.Config.ListenAddress, box.Config.TLSCertFile, box.Config.TLSKeyFile)
+	sc := echo.StartConfig{
+		Address:         box.Config.ListenAddress,
+		GracefulTimeout: 30 * time.Second,
+		HideBanner:      true,
+		HidePort:        true,
 	}
 
-	return box.WebServer.Echo.Start(box.Config.ListenAddress)
+	if len(box.Config.TLSCertFile) > 0 && len(box.Config.TLSKeyFile) > 0 {
+		return sc.StartTLS(box.Context, box.WebServer, box.Config.TLSCertFile, box.Config.TLSKeyFile)
+	}
+
+	return sc.Start(box.Context, box.WebServer)
 }

@@ -5,7 +5,7 @@ import (
 	"os"
 	"runtime/trace"
 
-	"github.com/labstack/echo-contrib/echoprometheus"
+	"github.com/labstack/echo-prometheus"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
 	"go.yaml.in/yaml/v3"
@@ -55,16 +55,13 @@ func WithWebServer() Option {
 	return func(box *Box) {
 		box.WebServer = &WebServer{
 			Echo: echo.New(),
-			defaultLivenessProbe: func(c echo.Context) error {
+			defaultLivenessProbe: func(c *echo.Context) error {
 				return c.NoContent(http.StatusOK)
 			},
-			defaultReadinessProbe: func(c echo.Context) error {
+			defaultReadinessProbe: func(c *echo.Context) error {
 				return c.NoContent(http.StatusOK)
 			},
 		}
-
-		box.WebServer.HideBanner = true
-		box.WebServer.HidePort = true
 
 		if box.Config.ListenAddress == "" {
 			box.Config.ListenAddress = ":8000"
@@ -79,23 +76,25 @@ func WithWebServer() Option {
 }
 
 // WithLivenessProbe allows to override the default liveness probe of the WebServer.
-func WithLivenessProbe(probe func(c echo.Context) error) Option {
+func WithLivenessProbe(probe echo.HandlerFunc) Option {
 	return func(box *Box) {
 		if box.WebServer == nil {
 			WithWebServer()(box)
 		}
 
+		_ = box.WebServer.Router().Remove(http.MethodGet, "/healthz")
 		box.WebServer.GET("/healthz", probe)
 	}
 }
 
 // WithReadinessProbe allows to override the default readiness probe of the WebServer.
-func WithReadinessProbe(probe func(c echo.Context) error) Option {
+func WithReadinessProbe(probe echo.HandlerFunc) Option {
 	return func(box *Box) {
 		if box.WebServer == nil {
 			WithWebServer()(box)
 		}
 
+		_ = box.WebServer.Router().Remove(http.MethodGet, "/readyz")
 		box.WebServer.GET("/readyz", probe)
 	}
 }
@@ -109,7 +108,7 @@ func WithTraceFlightRecorder(cfg trace.FlightRecorderConfig) Option {
 
 		box.flightRecorder = trace.NewFlightRecorder(cfg)
 
-		box.WebServer.GET("/tracez", func(c echo.Context) error {
+		box.WebServer.GET("/tracez", func(c *echo.Context) error {
 			if box.flightRecorder == nil || !box.flightRecorder.Enabled() {
 				return c.NoContent(http.StatusServiceUnavailable)
 			}
@@ -117,7 +116,7 @@ func WithTraceFlightRecorder(cfg trace.FlightRecorderConfig) Option {
 			box.flightRecorderMut.Lock()
 			defer box.flightRecorderMut.Unlock()
 
-			_, err := box.flightRecorder.WriteTo(c.Response().Writer)
+			_, err := box.flightRecorder.WriteTo(c.Response())
 			return err
 		})
 	}
