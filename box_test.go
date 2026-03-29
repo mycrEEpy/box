@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v5"
-	"github.com/mycreepy/box"
+	"github.com/mycreepy/box/v2"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
