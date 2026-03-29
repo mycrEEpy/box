@@ -1,4 +1,4 @@
-module github.com/mycreepy/box
+module github.com/mycreepy/box/v2
 
 go 1.25.0
 
