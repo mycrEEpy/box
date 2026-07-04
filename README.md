@@ -24,4 +24,4 @@
 go get github.com/mycreepy/box/v2
 ```
 
-See [examples](examples/main.go) & [package documentation](https://pkg.go.dev/github.com/mycreepy/box) for more information.
+See [examples](examples/main.go) & [package documentation](https://pkg.go.dev/github.com/mycreepy/box/v2) for more information.
