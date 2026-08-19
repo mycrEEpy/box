@@ -54,13 +54,23 @@ func WithGlobalLogger() Option {
 func WithWebServer() Option {
 	return func(box *Box) {
 		box.WebServer = &WebServer{
-			Echo: echo.New(),
-			defaultLivenessProbe: func(c *echo.Context) error {
+			Echo:                echo.New(),
+			livenessProbeState:  probeState{Healthy: true},
+			readinessProbeState: probeState{Healthy: true},
+		}
+
+		box.WebServer.defaultLivenessProbe = func(c *echo.Context) error {
+			if box.WebServer.IsAlive() {
 				return c.NoContent(http.StatusOK)
-			},
-			defaultReadinessProbe: func(c *echo.Context) error {
+			}
+			return c.JSON(http.StatusServiceUnavailable, box.WebServer.livenessProbeState)
+		}
+
+		box.WebServer.defaultReadinessProbe = func(c *echo.Context) error {
+			if box.WebServer.IsReady() {
 				return c.NoContent(http.StatusOK)
-			},
+			}
+			return c.JSON(http.StatusServiceUnavailable, box.WebServer.readinessProbeState)
 		}
 
 		if box.Config.ListenAddress == "" {

@@ -40,8 +40,60 @@ type Box struct {
 // WebServer provides the web server functionality of Box by embedding an Echo instance.
 type WebServer struct {
 	*echo.Echo
+
 	defaultLivenessProbe  echo.HandlerFunc
 	defaultReadinessProbe echo.HandlerFunc
+
+	probeStateMutex     sync.RWMutex
+	livenessProbeState  probeState
+	readinessProbeState probeState
+}
+
+type probeState struct {
+	Healthy bool   `json:"healthy"`
+	Reason  string `json:"reason,omitempty"`
+}
+
+// IsAlive returns if the applications default liveness probe is healthy.
+// If you use WithLivenessProbe do not use this function.
+func (w *WebServer) IsAlive() bool {
+	w.probeStateMutex.RLock()
+	defer w.probeStateMutex.RUnlock()
+
+	return w.livenessProbeState.Healthy
+}
+
+// IsReady returns if the applications default readiness probe is healthy.
+// If you use WithReadinessProbe do not use this function.
+func (w *WebServer) IsReady() bool {
+	w.probeStateMutex.RLock()
+	defer w.probeStateMutex.RUnlock()
+
+	return w.readinessProbeState.Healthy
+}
+
+// SetAlive sets the state of the applications default liveness probe.
+// If you use WithLivenessProbe do not use this function.
+func (w *WebServer) SetAlive(alive bool, reason string) {
+	w.probeStateMutex.Lock()
+	defer w.probeStateMutex.Unlock()
+
+	w.livenessProbeState = probeState{
+		Healthy: alive,
+		Reason:  reason,
+	}
+}
+
+// SetReady sets the state of the applications default readiness probe.
+// If you use WithReadinessProbe do not use this function.
+func (w *WebServer) SetReady(ready bool, reason string) {
+	w.probeStateMutex.Lock()
+	defer w.probeStateMutex.Unlock()
+
+	w.readinessProbeState = probeState{
+		Healthy: ready,
+		Reason:  reason,
+	}
 }
 
 // Config is the configuration struct for a Box.

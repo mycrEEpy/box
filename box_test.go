@@ -256,3 +256,71 @@ func TestBox_CancelContext(t *testing.T) {
 
 	<-b.Context.Done()
 }
+
+func TestWebServer_IsAlive_DefaultState(t *testing.T) {
+	prometheus.DefaultRegisterer = prometheus.NewRegistry()
+
+	b := box.New(box.WithWebServer())
+	if b == nil {
+		t.Fatal("box.New() returned nil")
+	}
+
+	if !b.WebServer.IsAlive() {
+		t.Error("IsAlive() should return true by default")
+	}
+}
+
+func TestWebServer_IsReady_DefaultState(t *testing.T) {
+	prometheus.DefaultRegisterer = prometheus.NewRegistry()
+
+	b := box.New(box.WithWebServer())
+	if b == nil {
+		t.Fatal("box.New() returned nil")
+	}
+
+	if !b.WebServer.IsReady() {
+		t.Error("IsReady() should return true by default")
+	}
+}
+
+func TestWebServer_SetAlive(t *testing.T) {
+	prometheus.DefaultRegisterer = prometheus.NewRegistry()
+
+	b := box.New(box.WithWebServer())
+	if b == nil {
+		t.Fatal("box.New() returned nil")
+	}
+
+	b.WebServer.SetAlive(false, "database connection lost")
+
+	if b.WebServer.IsAlive() {
+		t.Error("IsAlive() should return false after SetAlive(false, ...)")
+	}
+
+	b.WebServer.SetAlive(true, "recovered")
+
+	if !b.WebServer.IsAlive() {
+		t.Error("IsAlive() should return true after SetAlive(true, ...)")
+	}
+}
+
+func TestWebServer_SetReady(t *testing.T) {
+	prometheus.DefaultRegisterer = prometheus.NewRegistry()
+
+	b := box.New(box.WithWebServer())
+	if b == nil {
+		t.Fatal("box.New() returned nil")
+	}
+
+	b.WebServer.SetReady(false, "warming up cache")
+
+	if b.WebServer.IsReady() {
+		t.Error("IsReady() should return false after SetReady(false, ...)")
+	}
+
+	b.WebServer.SetReady(true, "cache ready")
+
+	if !b.WebServer.IsReady() {
+		t.Error("IsReady() should return true after SetReady(true, ...)")
+	}
+}
