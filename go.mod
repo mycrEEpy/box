@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	github.com/labstack/echo-prometheus v0.0.1
-	github.com/labstack/echo/v5 v5.4.0
+	github.com/labstack/echo/v5 v5.4.2
 	github.com/prometheus/client_golang v1.25.0
 	go.yaml.in/yaml/v3 v3.0.5
 )
