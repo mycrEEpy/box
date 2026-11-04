@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo-prometheus"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
-	"go.yaml.in/yaml/v3"
+	"go.yaml.in/yaml/v4"
 )
 
 // Option is a modifier function which can alter the provided functionality of a Box.
